@@ -4,10 +4,15 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cdbcf5c3-0e22-47cf-8c22-b189e7b123b1" name="Changes" comment="feat: use mysql driver instead of map">
+    <list default="true" id="cdbcf5c3-0e22-47cf-8c22-b189e7b123b1" name="Changes" comment="feat: use gorm install mysql driver">
+      <change afterPath="$PROJECT_DIR$/consts/error_code.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dal/db.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handler/handler.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/rp_receive_record.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/value.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/router.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/gin_util.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -26,7 +31,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="feat_gorm" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -87,7 +92,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: use mysql driver instead of map" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: use mysql driver instead of map" />
+    <MESSAGE value="feat: use gorm install mysql driver" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: use gorm install mysql driver" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
@@ -97,13 +103,8 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/main.go</url>
-          <line>103</line>
+          <line>10</line>
           <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/main.go</url>
-          <line>57</line>
-          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
