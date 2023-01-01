@@ -1,10 +1,9 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"time"
@@ -21,20 +20,29 @@ type RpReceiveRecord struct {
 	GroupChatId string
 	RpId        string
 	Amount      int64
-	CreateTime  string
-	ModifyTime  string
+	CreateTime  time.Time
+	ModifyTime  time.Time
 }
 
 func main() {
 
-	db, err := sql.Open("mysql", "root:root2023@tcp(127.0.0.1:3306)/tech")
+	dsn := "root:root2023@tcp(127.0.0.1:3306)/tech?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
 	if err != nil {
 		panic(err)
 	}
-	// See "Important settings" section.
-	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(10)
+
+	sqlDB, _ := db.DB()
+
+	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
+	sqlDB.SetMaxIdleConns(10)
+
+	// SetMaxOpenConns 设置打开数据库连接的最大数量。
+	sqlDB.SetMaxOpenConns(100)
+
+	// SetConnMaxLifetime 设置了连接可复用的最大时间。
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	r := gin.Default()
 
@@ -50,8 +58,10 @@ func main() {
 		log.Printf("get userid from request %v", userId)
 
 		var record RpReceiveRecord
-		s := fmt.Sprintf("select * from rp_receive_record where user_id = '%s'", userId)
-		err := db.QueryRow(s).Scan(&record.Id, &record.UserId, &record.GroupChatId, &record.RpId, &record.Amount, &record.CreateTime, &record.ModifyTime)
+
+		err := db.Table("rp_receive_record").Where("user_id = ?", userId).First(&record).Error
+		//s := fmt.Sprintf("select * from rp_receive_record where user_id = '%s'", userId)
+		//err := db.QueryRow(s).Scan(&record.Id, &record.UserId, &record.GroupChatId, &record.RpId, &record.Amount, &record.CreateTime, &record.ModifyTime)
 		//s := "select * from rp_receive_record where user_id = ? and id = ?"
 		//err := db.QueryRow(s, userId, 1).Scan(&record.Id, &record.UserId, &record.GroupChatId, &record.RpId, &record.Amount, &record.CreateTime, &record.ModifyTime)
 		if err != nil {
@@ -82,10 +92,17 @@ func main() {
 			})
 			return
 		}
-
-		s := "insert into rp_receive_record (user_id,group_chat_id,rp_id,amount,create_time) values(?,?,?,?,?)"
-
-		r, err := db.Exec(s, packageInfo.UserId, "insert_group001", "insert_rp_001", packageInfo.ReceiveAmount, time.Now())
+		record := &RpReceiveRecord{
+			UserId:      packageInfo.UserId,
+			GroupChatId: "insert_group002",
+			RpId:        "insert_rp_002",
+			Amount:      packageInfo.ReceiveAmount,
+			CreateTime:  time.Now(),
+			ModifyTime:  time.Now(),
+		}
+		//r, err := db.Exec(s, packageInfo.UserId, "insert_group001", "insert_rp_001", packageInfo.ReceiveAmount, time.Now())
+		//s := "insert into rp_receive_record (user_id,group_chat_id,rp_id,amount,create_time) values(?,?,?,?,?)"
+		err = db.Table("rp_receive_record").Create(&record).Error
 		if err != nil {
 			log.Printf("insert data err: %v\n", err)
 			c.JSON(http.StatusOK, gin.H{
@@ -94,12 +111,11 @@ func main() {
 			})
 			return
 		} else {
-			i, _ := r.LastInsertId()
-			log.Printf("i: %v\n", i)
+			log.Printf("i: %v\n", record.Id)
 			c.JSON(http.StatusOK, gin.H{
 				"code":       "0",
 				"message":    "success",
-				"primary_id": i,
+				"primary_id": record.Id,
 			})
 		}
 
