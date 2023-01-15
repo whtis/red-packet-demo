@@ -24,7 +24,7 @@ func QueryByUserId(c *gin.Context) {
 	record, err := dal.QueryByUserId(userId)
 	if err != nil {
 		log.Printf("can not find userId amount, userId: %v, err: %v", userId, err)
-		utils.RetErrJson(c, consts.ParamsError)
+		utils.RetErrJson(c, consts.BindError)
 	} else {
 		//log.Printf("find userId amount, userId: %v, amount: %v", userId, value)
 		rStr, _ := json.Marshal(record)
@@ -38,7 +38,7 @@ func InsertRecord(c *gin.Context) {
 	err := c.BindJSON(&packageInfo)
 	if err != nil {
 		log.Printf("bind package info error %v", err)
-		utils.RetErrJson(c, consts.ParamsError)
+		utils.RetErrJson(c, consts.BindError)
 		return
 	}
 	record := &model.RpReceiveRecord{

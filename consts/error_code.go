@@ -10,9 +10,13 @@ var (
 
 	RecordNotFound = buildErrorCode(-1, "record not found")
 
-	ParamsError = buildErrorCode(-2, "bind error")
+	BindError = buildErrorCode(-2, "bind error")
+
+	ParamError = buildErrorCode(-5, "param error")
 
 	InsertError = buildErrorCode(-3, "insert data error")
+
+	ServiceBusy = buildErrorCode(-110, "service busy")
 )
 
 func buildErrorCode(code int64, msg string) RError {

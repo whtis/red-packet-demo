@@ -5,15 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbcf5c3-0e22-47cf-8c22-b189e7b123b1" name="Changes" comment="feat: use gorm install mysql driver">
-      <change afterPath="$PROJECT_DIR$/consts/error_code.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dal/db.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/handler/handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/rp_receive_record.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/value.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/router.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/gin_util.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/consts/contants.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dal/db_receive_record.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dal/db_send_record.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handler/red_packet.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/rp_send_record.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/strategy/double_average.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/service/strategy/double_average_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/json_helper.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/consts/error_code.go" beforeDir="false" afterPath="$PROJECT_DIR$/consts/error_code.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dal/db.go" beforeDir="false" afterPath="$PROJECT_DIR$/dal/db.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handler/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/value.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/value.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/router.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +38,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feat_gorm" />
+        <entry key="$PROJECT_DIR$" value="feat_mvc" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -44,33 +51,66 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "go.import.settings.migrated": "true",
-    "last_opened_file_path": "/Users/tech",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/tech/go/src/ginDemo/service/strategy&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;
   }
-}]]></component>
-  <component name="RunManager">
-    <configuration name="go build ginDemo" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/service/strategy" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/service/strategy" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Test.TestDoubleAverage in ginDemo/service/strategy">
+    <configuration name="go build ginDemo" type="GoApplicationRunConfiguration" factoryName="Go Application" singleton="false" temporary="true" nameIsGenerated="true">
       <module name="ginDemo" />
       <working_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
+      <kind value="FILE" />
       <package value="ginDemo" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/main.go" />
       <method v="2" />
     </configuration>
+    <configuration name="TestDoubleAverage in ginDemo" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="ginDemo" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="ginDemo" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestDoubleAverage\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestDoubleAverage in ginDemo/service/strategy" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="ginDemo" />
+      <working_directory value="$PROJECT_DIR$/service/strategy" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="ginDemo/service/strategy" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestDoubleAverage\E$" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.TestDoubleAverage in ginDemo/service/strategy" />
+        <item itemvalue="Go Test.TestDoubleAverage in ginDemo" />
         <item itemvalue="Go Build.go build ginDemo" />
       </list>
     </recent_temporary>
