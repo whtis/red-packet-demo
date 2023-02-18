@@ -65,7 +65,7 @@ func SendRedPacket(c *gin.Context) {
 	sMap[newRecord.RpId] = receiveAmountList
 	// 7. 写入发放记录,可以判断一下重复error
 	buildSendRecord(newRecord, sReq)
-	id, dErr := dal.InsertSendRecord(newRecord)
+	id, dErr := dal.InsertSendRecord(&newRecord)
 	// err有两种情况 1. 数据插入重复   2. 数据库有问题
 	if dErr != nil {
 		var mysqlErr *mysql.MySQLError
@@ -115,6 +115,7 @@ func buildSendRecord(record model.RpSendRecord, req model.SendRpReq) {
 	record.ReceiveAmount = 0
 	record.Number = req.Number
 	record.Status = consts.RpStatusSend
+	record.SendTime = time.Now()
 	record.CreateTime = time.Now()
 	record.ModifyTime = time.Now()
 }

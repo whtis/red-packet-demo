@@ -13,3 +13,7 @@ func TestCheckParams(t *testing.T) {
 
 	assert.Equal(t, b, false)
 }
+
+func TestSendRedPacket(t *testing.T) {
+
+}
