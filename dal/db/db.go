@@ -1,4 +1,4 @@
-package dal
+package db
 
 import (
 	"gorm.io/driver/mysql"

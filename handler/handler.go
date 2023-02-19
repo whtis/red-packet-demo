@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"ginDemo/consts"
-	"ginDemo/dal"
+	"ginDemo/dal/db"
 	"ginDemo/model"
 	"ginDemo/utils"
 	"github.com/gin-gonic/gin"
@@ -21,7 +21,7 @@ func Demo(c *gin.Context) {
 func QueryByUserId(c *gin.Context) {
 	userId := c.Param("user_id")
 	log.Printf("get userid from request %v", userId)
-	record, err := dal.QueryByUserId(userId)
+	record, err := db.QueryByUserId(userId)
 	if err != nil {
 		log.Printf("can not find userId amount, userId: %v, err: %v", userId, err)
 		utils.RetErrJson(c, consts.BindError)
@@ -49,7 +49,7 @@ func InsertRecord(c *gin.Context) {
 		CreateTime:  time.Now(),
 		ModifyTime:  time.Now(),
 	}
-	id, iErr := dal.InsertRecord(record)
+	id, iErr := db.InsertRecord(record)
 
 	if iErr != nil {
 		log.Printf("insert data err: %v\n", err)

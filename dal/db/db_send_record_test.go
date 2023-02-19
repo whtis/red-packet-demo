@@ -1,4 +1,4 @@
-package dal
+package db
 
 import (
 	"ginDemo/model"
@@ -21,7 +21,7 @@ func TestInsertSendRecord(t *testing.T) {
 		CreateTime:  time.Now(),
 		ModifyTime:  time.Now(),
 	}
-	id, err := InsertSendRecord(m)
+	id, err := InsertSendRecord(nil, m)
 	t.Log(id)
 	assert.Equal(t, err, nil)
 
