@@ -5,6 +5,7 @@ import (
 	"ginDemo/consts"
 	"ginDemo/dal/db"
 	"ginDemo/dal/kv"
+	"ginDemo/dal/mq"
 	"ginDemo/model"
 	"ginDemo/service/strategy"
 	"ginDemo/utils"
@@ -95,6 +96,12 @@ func SendRedPacket(c *gin.Context) {
 	logrus.Infof("[SendRedPacket]: insert rp record success, auto increase id is : %v", id)
 	// 8. 发送延迟消息，期间进行一次对账
 	// 发一个消息告诉某人，这个红包在xx时刻会过期，如果过期了，请你帮我把红包设置成过期状态，如果这个时候红包没有领完，请你把剩下的钱转给发红包的用户。 todo
+	mErr := mq.SendRpDelay(c, newRecord, 0)
+	if mErr != nil {
+		// 方法1： 跟下面对账类似，如果出错了，我们回滚数据库，并且告诉用户，这次发红包失败了-- 不太可取
+		// 方法2： 依赖于mq自己重发，告诉用户我们发红包是成功了
+		logrus.Errorf("[SendRedPacket]:  send message error %v", mErr)
+	}
 	// 简单对账
 	// 1. 初始化一个list
 	// 2. lpop->list
