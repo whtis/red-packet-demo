@@ -43,6 +43,8 @@ func SendRpDelay(c context.Context, val interface{}, retryTimes int64) error {
 	}
 	msg.WithTag("my-tag")
 	msg.WithKeys([]string{"my-key"})
+	// 延迟时间
+	msg.WithDelayTimeLevel(18)
 	// 发送消息
 	// 作业，看下延迟消息怎么发
 	result, err := p.SendSync(c, msg)
