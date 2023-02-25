@@ -11,13 +11,16 @@ import (
 
 var p rocketmq.Producer
 
-var topic = "gen.demo.redPacket"
+var (
+	topic = "gen_demo_red_packet"
+	group = "gen_demo_red_packet_group"
+)
 
 func InitProduct(c context.Context) {
 	p, _ = rocketmq.NewProducer(
-		producer.WithNameServer([]string{"localhost:9876"}), // 接入点地址
-		producer.WithRetry(2),                               // 重试次数
-		producer.WithGroupName("ProductGroup"),              // 分组名称
+		producer.WithNameServer([]string{"192.168.2.88:9876"}), // 接入点地址
+		producer.WithRetry(2),         // 重试次数
+		producer.WithGroupName(group), // 分组名称
 	)
 	err := p.Start()
 	if err != nil {

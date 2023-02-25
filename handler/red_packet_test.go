@@ -8,7 +8,7 @@ import (
 
 func TestCheckParams(t *testing.T) {
 	m := model.SendRpReq{}
-	b := checkParams(m)
+	b := checkSendParams(m)
 	t.Log(b)
 
 	assert.Equal(t, b, false)

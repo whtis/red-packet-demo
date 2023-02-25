@@ -9,11 +9,12 @@ import (
 
 var tableNameSend = "rp_send_record"
 
-func QueryRecordByBizOutNoAndUserId(c *gin.Context, bizOutNo, userId string) (*model.RpSendRecord, error) {
+func QuerySendRecordByBizOutNoAndUserId(c *gin.Context, bizOutNo, userId string) (*model.RpSendRecord, error) {
+	// todo 这里着重要讲下find和first的区别
 	var record model.RpSendRecord
 	err := rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).Find(&record).Error
 	if err != nil {
-		logrus.Errorf("dal.QueryRecordByBizOutNoAndUserId query error %v", err)
+		logrus.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
 		return nil, err
 	}
 	if record.Id == 0 {
@@ -31,4 +32,14 @@ func InsertSendRecord(c *gin.Context, record *model.RpSendRecord) (int64, error)
 		return 0, err
 	}
 	return record.Id, err
+}
+
+func QuerySendRecordByRpId(c *gin.Context, rpId string) (*model.RpSendRecord, error) {
+	var record model.RpSendRecord
+	err := rdb.Table(tableNameSend).WithContext(c).Where("rp_id = ?", rpId).First(&record).Error
+	if err != nil {
+		logrus.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
+		return nil, err
+	}
+	return &record, nil
 }

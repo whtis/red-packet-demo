@@ -12,7 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,26 +30,30 @@ func SendRedPacket(c *gin.Context) {
 		utils.RetErrJson(c, consts.BindError)
 	}
 	// 2. 参数判断
-	ok := checkParams(sReq)
+	ok := checkSendParams(sReq)
 	if !ok {
 		logrus.Errorf("[SendRedPacket] check params error, sReq: %v", utils.Json2String(sReq))
 		utils.RetErrJson(c, consts.ParamError)
+		return
 	}
 	// 3. 账户、风控校验，略
 	// http请求 (ctx-->logid/traceId)
 	if sReq.UserId == sReq.GroupId {
 		utils.RetErrJson(c, consts.ParamError)
+		return
 	}
 
 	// 4. 幂等校验
-	record, rErr := db.QueryRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
+	record, rErr := db.QuerySendRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
 	if rErr != nil {
 		logrus.Errorf("[SendRedPacket] query db error %v", rErr)
 		utils.RetErrJson(c, consts.ServiceBusy)
+		return
 	}
 	if record != nil {
 		logrus.Infof("[SendRedPacket] bizOutNo has one record already")
 		utils.RetJsonWithData(c, utils.Json2String(record))
+		return
 	}
 
 	// 初始化一个新的发放记录
@@ -57,12 +63,12 @@ func SendRedPacket(c *gin.Context) {
 	newRecord.SendTime = time.Now()
 	newRecord.ExpireTime = time.Now().Add(consts.ExpireTime24)
 	// 6. 红包预拆包，将结果写入到map中
-	var receiveAmountList []int64
+	var receiveAmountList []string
 	remain := sReq.Amount
 	sum := int64(0)
 	for i := int64(0); i < sReq.Number; i++ {
 		x := strategy.DoubleAverage(sReq.Number-i, remain)
-		receiveAmountList = append(receiveAmountList, x)
+		receiveAmountList = append(receiveAmountList, strconv.FormatInt(x, 10))
 		remain -= x
 		sum += x
 	}
@@ -70,6 +76,7 @@ func SendRedPacket(c *gin.Context) {
 	if kErr != nil {
 		logrus.Errorf("[SendRedPacket] insert receive amount into redis error %v", kErr)
 		utils.RetErrJson(c, consts.ServiceBusy)
+		return
 	}
 	// 7. 写入发放记录,可以判断一下重复error
 	buildSendRecord(newRecord, sReq)
@@ -79,18 +86,21 @@ func SendRedPacket(c *gin.Context) {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(dErr, &mysqlErr) && mysqlErr.Number == 1062 {
 			//  幂等返回
-			oldRecord, oErr := db.QueryRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
+			oldRecord, oErr := db.QuerySendRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
 			if oErr != nil {
 				logrus.Errorf("[SendRedPacket] old record query db error %v", oErr)
 				utils.RetErrJson(c, consts.ServiceBusy)
+				return
 			}
 			if oldRecord != nil {
 				logrus.Infof("[SendRedPacket] bizOutNo has one record already")
 				utils.RetJsonWithData(c, utils.Json2String(record))
+				return
 			}
 		} else {
 			logrus.Warnf("[SendRedPacket] bizOutNo has one record already")
 			utils.RetErrJson(c, consts.InsertError)
+			return
 		}
 	}
 	logrus.Infof("[SendRedPacket]: insert rp record success, auto increase id is : %v", id)
@@ -115,6 +125,7 @@ func SendRedPacket(c *gin.Context) {
 
 			// 2. 报错
 			utils.RetErrJson(c, consts.ServiceBusy)
+			return
 		}
 	}
 	//if amountListInMap, okk := sMap[newRecord.RpId]; okk {
@@ -148,7 +159,7 @@ func buildSendRecord(record model.RpSendRecord, req model.SendRpReq) {
 	record.ModifyTime = time.Now()
 }
 
-func checkParams(seq model.SendRpReq) bool {
+func checkSendParams(seq model.SendRpReq) bool {
 	return !(seq.UserId == "" || seq.GroupId == "" || seq.Amount <= 0 || (seq.Number*seq.Amount) <= 1 || seq.BizOutNo == "")
 }
 
@@ -158,19 +169,86 @@ func QuerySendRecords(c *gin.Context) {
 
 func ReceiveRedPacket(c *gin.Context) {
 	// 1. 参数绑定
-
+	var rReq model.ReceiveRpReq
+	err := c.BindJSON(&rReq)
+	if err != nil {
+		logrus.Error("[ReceiveRedPacket] bind req json error")
+		utils.RetErrJson(c, consts.BindError)
+		return
+	}
 	// 2. 参数检查
-
+	ok := checkReceiveParams(rReq)
+	if !ok {
+		logrus.Errorf("[ReceiveRedPacket] check params error, rReq: %v", utils.Json2String(rReq))
+		utils.RetErrJson(c, consts.ParamError)
+		return
+	}
 	// 3. 幂等检查
-
+	receiveRecord, rErr := db.QueryReceiveRecordByBizOutNoAndUserId(c, rReq.BizOutNo, rReq.UserId)
+	if rErr != nil {
+		logrus.Error("[ReceiveRedPacket] query db error %v", err)
+		utils.RetErrJson(c, consts.ServiceBusy)
+		return
+	}
+	if receiveRecord != nil {
+		// 请求重入，返回上一次领取的红包记录
+		utils.RetJsonWithData(c, utils.Json2String(receiveRecord))
+		return
+	}
+	// 4. 查询发放记录，判断是否可以发放
+	sendRecord, sErr := db.QuerySendRecordByRpId(c, rReq.RpId)
+	if sErr != nil {
+		utils.RetErrJson(c, consts.ServiceBusy)
+		return
+	}
 	// 4. 读取红包记录
-
+	// 校验发送红包记录的状态，只有状态为已发送时才能继续领取红包
+	if sendRecord.Status != consts.RpStatusSend {
+		logrus.Infof("[ReceiveRedPacket] rp record received or expired, status:%d", sendRecord.Status)
+		utils.RetErrJson(c, consts.ServiceBusy)
+		return
+	}
+	// 校验红包是否过期
+	if time.Now().After(sendRecord.ExpireTime) {
+		logrus.Errorf("[ReceiveRedPacket] rp record has been expired")
+		utils.RetErrJson(c, consts.RpExpiredError)
+		return
+	}
 	// 5.读取红包个数
+	receiveAmount, aErr := kv.LPop(c, sendRecord.RpId)
+	if aErr != nil {
+		if aErr == redis.Nil {
+			// 红包领完了
+			utils.RetErrJson(c, consts.RpReceivedError)
+			return
+		}
+		utils.RetErrJson(c, consts.ServiceBusy)
+		return
+	}
+	// 6. 生成领取信息&更新发放记录数据
+	dbReceiveRecord := buildReceiveRecord(rReq, receiveAmount)
+	sendRecord.ReceiveAmount = sendRecord.ReceiveAmount + receiveAmount
+	// 7. gorm事务
+	uErr := db.UpdateSendAndCreateReceiveRecordTx(c, sendRecord, dbReceiveRecord)
+	if uErr != nil {
+		utils.RetErrJson(c, consts.ServiceBusy)
+		return
+	}
+}
 
-	// 6. 生成领取信息
+func buildReceiveRecord(req model.ReceiveRpReq, amount int64) *model.RpReceiveRecord {
+	return &model.RpReceiveRecord{
+		UserId:      req.UserId,
+		GroupChatId: req.GroupId,
+		RpId:        req.RpId,
+		Amount:      amount,
+		CreateTime:  time.Now(),
+		ModifyTime:  time.Now(),
+	}
+}
 
-	// 7.
-
+func checkReceiveParams(req model.ReceiveRpReq) bool {
+	return !(req.UserId == "" || req.GroupId == "" || req.BizOutNo == "")
 }
 
 func QueryReceiveRecords(c *gin.Context) {

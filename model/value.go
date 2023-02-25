@@ -14,4 +14,8 @@ type SendRpReq struct {
 }
 
 type ReceiveRpReq struct {
+	UserId   string `json:"user_id"`
+	GroupId  string `json:"group_id"`
+	BizOutNo string `json:"biz_out_no"`
+	RpId     string `json:"rp_id"`
 }

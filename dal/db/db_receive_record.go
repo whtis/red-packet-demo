@@ -1,7 +1,11 @@
 package db
 
 import (
+	"errors"
 	"ginDemo/model"
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 	"log"
 )
 
@@ -25,4 +29,18 @@ func InsertRecord(record *model.RpReceiveRecord) (int64, error) {
 	}
 	return record.Id, nil
 
+}
+
+func QueryReceiveRecordByBizOutNoAndUserId(c *gin.Context, bizOutNo, userId string) (*model.RpReceiveRecord, error) {
+	var record model.RpReceiveRecord
+	// find 和first的区别：record not find报错--first；find不报错
+	err := rdb.Table(tableNameReceive).WithContext(c).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).First(&record).Error
+	if err != nil {
+		if errors.As(err, &gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		logrus.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
+		return nil, err
+	}
+	return &record, nil
 }

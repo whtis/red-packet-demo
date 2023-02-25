@@ -17,6 +17,10 @@ var (
 	InsertError = buildErrorCode(-3, "insert data error")
 
 	ServiceBusy = buildErrorCode(-110, "service busy")
+
+	RpExpiredError = buildErrorCode(-6, "red packet expired")
+
+	RpReceivedError = buildErrorCode(-4, "all the red packets are received")
 )
 
 func buildErrorCode(code int64, msg string) RError {
