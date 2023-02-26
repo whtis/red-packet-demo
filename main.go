@@ -3,6 +3,7 @@ package main
 import (
 	"ginDemo/dal/db"
 	"ginDemo/handler"
+	"ginDemo/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,12 +23,12 @@ func register(r *gin.Engine) {
 	r.POST("/gin_demo/package_infos", handler.InsertRecord)
 
 	// 发放红包接口
-	r.POST("/red-packet/send", handler.SendRedPacket)
+	r.POST("/red-packet/send", service.SendRedPacket)
 	// 查询发放记录
-	r.GET("/red-packet/send/query", handler.QuerySendRecords)
+	r.GET("/red-packet/send/query", service.QuerySendRecords)
 	// 领取红包接口
-	r.POST("/red-packet/receive", handler.ReceiveRedPacket)
+	r.POST("/red-packet/receive", service.ReceiveRedPacket)
 	// 查询领取红包记录
-	r.POST("/red-packet/receive/query", handler.QueryReceiveRecords)
+	r.POST("/red-packet/receive/query", service.QueryReceiveRecords)
 
 }

@@ -12,7 +12,7 @@ import (
 var p rocketmq.Producer
 
 var (
-	topic = "gen_demo_red_packet"
+	topic = "gen_demo_red_packet_test"
 	group = "gen_demo_red_packet_group"
 )
 
@@ -41,8 +41,8 @@ func SendRpDelay(c context.Context, val interface{}, retryTimes int64) error {
 		Topic: topic,
 		Body:  mResult,
 	}
-	msg.WithTag("my-tag")
-	msg.WithKeys([]string{"my-key"})
+	msg.WithTag("")
+	msg.WithKeys([]string{""})
 	// 延迟时间
 	msg.WithDelayTimeLevel(18)
 	// 发送消息
