@@ -37,6 +37,13 @@ type QuerySendRecordReqByPage struct {
 	Total int64 `json:"total"`
 }
 
+type ExportSendRecordReq struct {
+	UserId  string `json:"user_id"`
+	GroupId string `json:"group_id"`
+
+	Limit int `json:"limit"`
+}
+
 type QuerySendRecordRespByPage struct {
 	RpSendRecordList []*RpSendRecord `json:"rp_send_record_list"`
 	Total            int64           `json:"total"`

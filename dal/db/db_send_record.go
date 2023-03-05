@@ -5,6 +5,8 @@ import (
 	"ginDemo/model"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"strconv"
+	"time"
 )
 
 var tableNameSend = "rp_send_record"
@@ -51,7 +53,9 @@ func QuerySendRecordByCond(c *gin.Context, req model.QuerySendRecordReq) ([]*mod
 	if req.GroupId != "" {
 		tx.Where("group_chat_id = ?", req.GroupId)
 	}
-	tx.Where("create_time < ?", req.Cursor) // todo 类型转换 作业
+	intCursor, _ := strconv.ParseInt(req.Cursor, 10, 0)
+	cursorTime := time.Unix(intCursor, 0)
+	tx.Where("create_time < ?", cursorTime)
 
 	err := tx.Order("create_time desc").Limit(int(req.Size)).Find(&records).Error
 	if err != nil {
@@ -70,6 +74,22 @@ func QuerySendRecordByCondPage(c *gin.Context, req model.QuerySendRecordReqByPag
 	}
 
 	err := tx.Order("create_time desc").Offset(int(req.Page)).Limit(int(req.Size)).Find(&records).Error
+	if err != nil {
+		logrus.Errorf("dal.QuerySendRecordByCondPage query error %v", err)
+		return nil, err
+	}
+	return records, nil
+}
+
+func ExportSendRecords(c *gin.Context, req model.ExportSendRecordReq) ([]*model.RpSendRecord, error) {
+	records := make([]*model.RpSendRecord, 0)
+	// select * from send_record where user_id = xxx and (group_chat_id = ?) order by create_time desc limit size
+	tx := rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId).Limit(req.Limit)
+	if req.GroupId != "" {
+		tx.Where("group_chat_id = ?", req.GroupId)
+	}
+
+	err := tx.Order("create_time desc").Find(&records).Error
 	if err != nil {
 		logrus.Errorf("dal.QuerySendRecordByCondPage query error %v", err)
 		return nil, err

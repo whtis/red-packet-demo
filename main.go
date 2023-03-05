@@ -30,5 +30,7 @@ func register(r *gin.Engine) {
 	r.POST("/red-packet/receive", service.ReceiveRedPacket)
 	// 查询领取红包记录
 	r.POST("/red-packet/receive/query", service.QueryReceiveRecords)
+	// 导出发放记录
+	r.POST("/red-packet/send/export", service.ExportSendRecords)
 
 }
