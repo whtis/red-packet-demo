@@ -31,7 +31,7 @@ func ReceiveRedPacket(c *gin.Context) {
 	// 3. 幂等检查
 	receiveRecord, rErr := db.QueryReceiveRecordByBizOutNoAndUserId(c, rReq.BizOutNo, rReq.UserId)
 	if rErr != nil {
-		logrus.Error("[ReceiveRedPacket] query db error %v", err)
+		logrus.Errorf("[ReceiveRedPacket] query db error %v", err)
 		utils.RetErrJson(c, consts.ServiceBusy)
 		return
 	}

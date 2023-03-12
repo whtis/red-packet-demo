@@ -15,8 +15,9 @@ func main() {
 }
 
 func register(r *gin.Engine) {
+	// 路由
 
-	r.GET("/ping", handler.Demo)
+	r.GET("/s/wd=?", handler.Demo)
 
 	r.GET("/gin_demo/package_infos/:user_id", handler.QueryByUserId)
 

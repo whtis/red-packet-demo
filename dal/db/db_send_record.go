@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"errors"
 	"ginDemo/model"
 	"github.com/gin-gonic/gin"
@@ -11,12 +12,12 @@ import (
 
 var tableNameSend = "rp_send_record"
 
-func QuerySendRecordByBizOutNoAndUserId(c *gin.Context, bizOutNo, userId string) (*model.RpSendRecord, error) {
+func QuerySendRecordByBizOutNoAndUserId(ctx context.Context, bizOutNo, userId string) (*model.RpSendRecord, error) {
 	// todo 这里着重要讲下find和first的区别
 	var record model.RpSendRecord
-	err := rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).Find(&record).Error
+	err := rdb.Table(tableNameSend).WithContext(ctx).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).Find(&record).Error
 	if err != nil {
-		logrus.WithContext(c).Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
+		logrus.WithContext(ctx).Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
 		return nil, err
 	}
 	if record.Id == 0 {

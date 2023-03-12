@@ -18,6 +18,8 @@ import (
 	"time"
 )
 
+// 接口继承/重载
+
 func SendRedPacket(c *gin.Context) {
 	// 1. 参数绑定
 	var sReq model.SendRpReq
@@ -34,7 +36,9 @@ func SendRedPacket(c *gin.Context) {
 		return
 	}
 	// 3. 账户、风控校验，略
-	// http请求 (ctx-->logid/traceId)
+
+	// http请求 (ctx-->logid/traceId)  // 1.查注册中心，告诉我它的ip是啥，2 我用ip+端口
+
 	if sReq.UserId == sReq.GroupId {
 		utils.RetErrJson(c, consts.ParamError)
 		return
@@ -76,7 +80,7 @@ func SendRedPacket(c *gin.Context) {
 		return
 	}
 	// 7. 写入发放记录,可以判断一下重复error
-	buildSendRecord(newRecord, sReq)
+	buildSendRecord(&newRecord, sReq)
 	id, dErr := db.InsertSendRecord(c, &newRecord)
 	// err有两种情况 1. 数据插入重复   2. 数据库有问题
 	if dErr != nil {
@@ -147,7 +151,7 @@ func checkSendParams(seq model.SendRpReq) bool {
 	return !(seq.UserId == "" || seq.GroupId == "" || seq.Amount <= 0 || (seq.Number*seq.Amount) <= 1 || seq.BizOutNo == "")
 }
 
-func buildSendRecord(record model.RpSendRecord, req model.SendRpReq) {
+func buildSendRecord(record *model.RpSendRecord, req model.SendRpReq) {
 	record.UserId = req.UserId
 	record.GroupChatId = req.GroupId
 	record.BizOutNo = req.BizOutNo

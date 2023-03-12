@@ -19,6 +19,7 @@ func Demo(c *gin.Context) {
 }
 
 func QueryByUserId(c *gin.Context) {
+	// 都会有拦截（鉴权）
 	userId := c.Param("user_id")
 	log.Printf("get userid from request %v", userId)
 	record, err := db.QueryByUserId(userId)
