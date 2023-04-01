@@ -13,7 +13,7 @@ var tableNameReceive = "rp_receive_record"
 
 func QueryByUserId(userId string) (*model.RpReceiveRecord, error) {
 	var record model.RpReceiveRecord
-	err := rdb.Table(tableNameReceive).Where("user_id = ?", userId).First(&record).Error
+	err := Rdb.Table(tableNameReceive).Where("user_id = ?", userId).First(&record).Error
 	if err != nil {
 		log.Printf("can not find userId amount, userId: %v, err: %v", userId, err)
 		return nil, err
@@ -22,7 +22,7 @@ func QueryByUserId(userId string) (*model.RpReceiveRecord, error) {
 }
 
 func InsertRecord(record *model.RpReceiveRecord) (int64, error) {
-	err := rdb.Table(tableNameReceive).Create(&record).Error
+	err := Rdb.Table(tableNameReceive).Create(&record).Error
 	if err != nil {
 		log.Printf("insert data err: %v\n", err)
 		return 0, err
@@ -34,7 +34,7 @@ func InsertRecord(record *model.RpReceiveRecord) (int64, error) {
 func QueryReceiveRecordByBizOutNoAndUserId(c *gin.Context, bizOutNo, userId string) (*model.RpReceiveRecord, error) {
 	var record model.RpReceiveRecord
 	// find 和first的区别：record not find报错--first；find不报错
-	err := rdb.Table(tableNameReceive).WithContext(c).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).First(&record).Error
+	err := Rdb.Table(tableNameReceive).WithContext(c).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).First(&record).Error
 	if err != nil {
 		if errors.As(err, &gorm.ErrRecordNotFound) {
 			return nil, nil

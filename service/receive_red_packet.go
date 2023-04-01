@@ -59,7 +59,7 @@ func ReceiveRedPacket(c *gin.Context) {
 		utils.RetErrJson(c, consts.RpExpiredError)
 		return
 	}
-	// 5.读取红包个数
+	// 5.领红包
 	receiveAmount, aErr := kv.LPop(c, sendRecord.RpId)
 	if aErr != nil {
 		if aErr == redis.Nil {
@@ -76,9 +76,12 @@ func ReceiveRedPacket(c *gin.Context) {
 	// 7. gorm事务
 	uErr := db.UpdateSendAndCreateReceiveRecordTx(c, sendRecord, dbReceiveRecord)
 	if uErr != nil {
+		// todo 把这个单个红包给放回redis队尾
 		utils.RetErrJson(c, consts.ServiceBusy)
 		return
 	}
+	utils.RetJsonWithData(c, utils.Json2String(receiveRecord))
+	return
 }
 
 func buildReceiveRecord(req model.ReceiveRpReq, amount int64) *model.RpReceiveRecord {
@@ -87,6 +90,8 @@ func buildReceiveRecord(req model.ReceiveRpReq, amount int64) *model.RpReceiveRe
 		GroupChatId: req.GroupId,
 		RpId:        req.RpId,
 		Amount:      amount,
+		BizOutNo:    req.BizOutNo,
+		ReceiveTime: time.Now(),
 		CreateTime:  time.Now(),
 		ModifyTime:  time.Now(),
 	}

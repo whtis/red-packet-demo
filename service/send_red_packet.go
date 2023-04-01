@@ -5,7 +5,6 @@ import (
 	"ginDemo/consts"
 	"ginDemo/dal/db"
 	"ginDemo/dal/kv"
-	"ginDemo/dal/mq"
 	"ginDemo/model"
 	"ginDemo/service/strategy"
 	"ginDemo/utils"
@@ -81,7 +80,8 @@ func SendRedPacket(c *gin.Context) {
 	}
 	// 7. 写入发放记录,可以判断一下重复error
 	buildSendRecord(&newRecord, sReq)
-	id, dErr := db.InsertSendRecord(c, &newRecord)
+	tx := db.Rdb.Begin()
+	dErr := tx.Table("rp_send_record").WithContext(c).Create(&newRecord).Error
 	// err有两种情况 1. 数据插入重复   2. 数据库有问题
 	if dErr != nil {
 		var mysqlErr *mysql.MySQLError
@@ -90,45 +90,54 @@ func SendRedPacket(c *gin.Context) {
 			oldRecord, oErr := db.QuerySendRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
 			if oErr != nil {
 				logrus.Errorf("[SendRedPacket] old record query db error %v", oErr)
+				tx.Rollback()
 				utils.RetErrJson(c, consts.ServiceBusy)
 				return
 			}
 			if oldRecord != nil {
 				logrus.Infof("[SendRedPacket] bizOutNo has one record already")
+				tx.Commit()
 				utils.RetJsonWithData(c, utils.Json2String(record))
 				return
 			}
 		} else {
 			logrus.Warnf("[SendRedPacket] bizOutNo has one record already")
+			_ = tx.Rollback()
 			utils.RetErrJson(c, consts.InsertError)
 			return
 		}
 	}
-	logrus.Infof("[SendRedPacket]: insert rp record success, auto increase id is : %v", id)
+	logrus.Infof("[SendRedPacket]: insert rp record success: %v", newRecord.Id)
 	// 8. 发送延迟消息，期间进行一次对账
 	// 发一个消息告诉某人，这个红包在xx时刻会过期，如果过期了，请你帮我把红包设置成过期状态，如果这个时候红包没有领完，请你把剩下的钱转给发红包的用户。 todo
-	mErr := mq.SendRpDelay(c, newRecord, 0)
-	if mErr != nil {
-		// 方法1： 跟下面对账类似，如果出错了，我们回滚数据库，并且告诉用户，这次发红包失败了-- 不太可取
-		// 方法2： 依赖于mq自己重发，告诉用户我们发红包是成功了
-		logrus.Errorf("[SendRedPacket]:  send message error %v", mErr)
-	}
+	//mErr := mq.SendRpDelay(c, newRecord, 0)
+	//if mErr != nil {
+	//	// 方法1： 跟下面对账类似，如果出错了，我们回滚数据库，并且告诉用户，这次发红包失败了-- 不太可取
+	//	// 方法2： 依赖于mq自己重发，告诉用户我们发红包是成功了
+	//	logrus.Errorf("[SendRedPacket]:  send message error %v", mErr)
+	//}
 	// 简单对账
 	// 1. 初始化一个list
 	// 2. lpop->list
 	// 3. 对账成功， list-> redis
-	rList, rlErr := kv.LLenRp(c, newRecord.RpId)
+	rLen, rlErr := kv.LLenRp(c, newRecord.RpId)
 	if rlErr != nil {
+		// 需要回滚数据库
+		tx.Rollback()
 		logrus.Warnf("[SendRedPacket] bizOutNo has one record already")
 	} else {
-		if len(*rList) != len(receiveAmountList) {
+		if *rLen != int64(len(receiveAmountList)) {
 			// 1. 回滚数据库、删除发放记录,作业 todo
-
+			tx.Rollback()
 			// 2. 报错
 			utils.RetErrJson(c, consts.ServiceBusy)
 			return
 		}
 	}
+	tx.Commit()
+	utils.RetJsonWithData(c, utils.Json2String(newRecord))
+	return
+
 	//if amountListInMap, okk := sMap[newRecord.RpId]; okk {
 	//	var total int64
 	//	for _, val := range amountListInMap {

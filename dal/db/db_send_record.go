@@ -15,7 +15,7 @@ var tableNameSend = "rp_send_record"
 func QuerySendRecordByBizOutNoAndUserId(ctx context.Context, bizOutNo, userId string) (*model.RpSendRecord, error) {
 	// todo 这里着重要讲下find和first的区别
 	var record model.RpSendRecord
-	err := rdb.Table(tableNameSend).WithContext(ctx).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).Find(&record).Error
+	err := Rdb.Table(tableNameSend).WithContext(ctx).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).Find(&record).Error
 	if err != nil {
 		logrus.WithContext(ctx).Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
 		return nil, err
@@ -28,7 +28,7 @@ func QuerySendRecordByBizOutNoAndUserId(ctx context.Context, bizOutNo, userId st
 }
 
 func InsertSendRecord(c *gin.Context, record *model.RpSendRecord) (int64, error) {
-	err := rdb.Table(tableNameSend).WithContext(c).Create(record).Error
+	err := Rdb.Table(tableNameSend).WithContext(c).Create(record).Error
 	// err有两种情况 1. 数据库有问题   2. 数据插入重复
 	if err != nil {
 		logrus.Errorf("dal.InsertSendRecord error %v", err)
@@ -39,7 +39,7 @@ func InsertSendRecord(c *gin.Context, record *model.RpSendRecord) (int64, error)
 
 func QuerySendRecordByRpId(c *gin.Context, rpId string) (*model.RpSendRecord, error) {
 	var record model.RpSendRecord
-	err := rdb.Table(tableNameSend).WithContext(c).Where("rp_id = ?", rpId).First(&record).Error
+	err := Rdb.Table(tableNameSend).WithContext(c).Where("rp_id = ?", rpId).First(&record).Error
 	if err != nil {
 		logrus.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
 		return nil, err
@@ -50,7 +50,7 @@ func QuerySendRecordByRpId(c *gin.Context, rpId string) (*model.RpSendRecord, er
 func QuerySendRecordByCond(c *gin.Context, req model.QuerySendRecordReq) ([]*model.RpSendRecord, error) {
 	records := make([]*model.RpSendRecord, 0)
 	// select * from send_record where user_id = xxx and (group_chat_id = ?) order by create_time desc limit size
-	tx := rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId)
+	tx := Rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId)
 	if req.GroupId != "" {
 		tx.Where("group_chat_id = ?", req.GroupId)
 	}
@@ -69,7 +69,7 @@ func QuerySendRecordByCond(c *gin.Context, req model.QuerySendRecordReq) ([]*mod
 func QuerySendRecordByCondPage(c *gin.Context, req model.QuerySendRecordReqByPage) ([]*model.RpSendRecord, error) {
 	records := make([]*model.RpSendRecord, 0)
 	// select * from send_record where user_id = xxx and (group_chat_id = ?) order by create_time desc limit size
-	tx := rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId)
+	tx := Rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId)
 	if req.GroupId != "" {
 		tx.Where("group_chat_id = ?", req.GroupId)
 	}
@@ -85,7 +85,7 @@ func QuerySendRecordByCondPage(c *gin.Context, req model.QuerySendRecordReqByPag
 func ExportSendRecords(c *gin.Context, req model.ExportSendRecordReq) ([]*model.RpSendRecord, error) {
 	records := make([]*model.RpSendRecord, 0)
 	// select * from send_record where user_id = xxx and (group_chat_id = ?) order by create_time desc limit size
-	tx := rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId).Limit(req.Limit)
+	tx := Rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId).Limit(req.Limit)
 	if req.GroupId != "" {
 		tx.Where("group_chat_id = ?", req.GroupId)
 	}
@@ -101,7 +101,7 @@ func ExportSendRecords(c *gin.Context, req model.ExportSendRecordReq) ([]*model.
 func CountSendRecordByCondPage(c *gin.Context, req model.QuerySendRecordReqByPage) (int64, error) {
 	count := int64(0)
 	// select * from send_record where user_id = xxx and (group_chat_id = ?) order by create_time desc limit size
-	tx := rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId)
+	tx := Rdb.Table(tableNameSend).WithContext(c).Where("user_id = ?", req.UserId)
 	if req.GroupId != "" {
 		tx.Where("group_chat_id = ?", req.GroupId)
 	}

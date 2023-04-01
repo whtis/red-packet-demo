@@ -8,6 +8,8 @@ type RpReceiveRecord struct {
 	GroupChatId string
 	RpId        string
 	Amount      int64
+	BizOutNo    string
+	ReceiveTime time.Time
 	CreateTime  time.Time
 	ModifyTime  time.Time
 }

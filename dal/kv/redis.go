@@ -11,7 +11,7 @@ var redisCli *redis.Client
 
 func InitRedis(ctx context.Context) {
 	redisCli = redis.NewClient(&redis.Options{
-		Addr:     "192.168.2.155:32768",
+		Addr:     "127.0.0.1:6379",
 		Password: "redispw", // 没有密码，默认值
 		DB:       0,         // 默认DB 0
 	})

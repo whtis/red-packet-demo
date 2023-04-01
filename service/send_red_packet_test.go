@@ -21,7 +21,7 @@ func TestSendRedPacket(t *testing.T) {
 	kv.InitRedis(ctx)
 
 	// 关键点1， 使用gin的Router
-	r := setupRouter()
+	r := setupSendRouter()
 	// 关键点2 构造请求body
 
 	sReq := model.SendRpReq{
@@ -68,7 +68,7 @@ func TestSendRedPacket(t *testing.T) {
 
 }
 
-func setupRouter() *gin.Engine {
+func setupSendRouter() *gin.Engine {
 	r := gin.Default()
 	r.POST("/red-packet/send", SendRedPacket)
 	return r

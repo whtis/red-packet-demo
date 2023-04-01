@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-var rdb *gorm.DB
+var Rdb *gorm.DB
 
 func InitDB() {
-	dsn := "root:root2023@tcp(127.0.0.1:3306)/tech?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:jrttroot@tcp(127.0.0.1:3306)/tech?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
-	rdb, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	Rdb, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 
-	sqlDB, _ := rdb.DB()
+	sqlDB, _ := Rdb.DB()
 
 	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
 	sqlDB.SetMaxIdleConns(10)

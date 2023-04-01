@@ -10,14 +10,14 @@ import (
 )
 
 const (
-	NetworkAddr = "127.0.0.1:19090"
+	NetworkAddr = "127.0.0.1:19099"
 )
 
 type RedPacketServiceImpl struct {
 }
 
 func (s RedPacketServiceImpl) SendRp(ctx context.Context, req *rpc.SendRpReq) (*rpc.SendRpResp, error) {
-	fmt.Println("server: go req: ", utils.Json2String(req))
+	fmt.Println("golang server: go req: ", utils.Json2String(req))
 	resp := &rpc.SendRpResp{
 		RpId:    "goRPC:rpId0001",
 		ErrCode: 0,

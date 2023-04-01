@@ -2,7 +2,6 @@ package kv
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
@@ -23,23 +22,15 @@ func LPushRp(c context.Context, key string, val []string) error {
 	return err
 }
 
-func LLenRp(c context.Context, key string) (*[]int64, error) {
+func LLenRp(c context.Context, key string) (*int64, error) {
 	lKey := getKey(key)
-	re, err := redisCli.Get(c, key).Result()
-	if err != nil {
-		logrus.Errorf("redis: get key error %v", lKey)
-		return nil, err
-	}
-	// string转数据
-	var arr []int64
-	jErr := json.Unmarshal([]byte(re), &arr)
-	if jErr != nil {
-		logrus.Errorf("redis: json unmarshal error %v", lKey)
-		return nil, jErr
-	}
-	//rLen, rErr:= redisCli.LLen(c,lKey).Result()
 
-	return &arr, nil
+	rLen, rErr := redisCli.LLen(c, lKey).Result()
+	if rErr != nil {
+		logrus.Errorf("redis: get key error %v", lKey)
+		return nil, rErr
+	}
+	return &rLen, nil
 }
 
 // LPop 领红包的时候要用

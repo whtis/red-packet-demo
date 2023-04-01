@@ -15,7 +15,7 @@ func main() {
 	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
 
-	transport, err := thrift.NewTSocket(net.JoinHostPort("127.0.0.1", "19090"))
+	transport, err := thrift.NewTSocket(net.JoinHostPort("127.0.0.1", "19091"))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error resolving address:", err)
 		os.Exit(1)
@@ -39,7 +39,7 @@ func main() {
 		}
 
 		resp, err := client.SendRp(context.Background(), req)
-		fmt.Println(i, "SendRp->", resp, err)
+		fmt.Println(i, "golang client: SendRp->", resp, err)
 	}
 
 	endTime := currentTimeMillis()
