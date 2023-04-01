@@ -3,6 +3,7 @@ package utils
 import (
 	"ginDemo/consts"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -26,4 +27,18 @@ func RetErrJson(c *gin.Context, rErr consts.RError) {
 		"code": rErr.Code,
 		"msg":  rErr.Msg,
 	})
+}
+
+type LogrusHook struct {
+}
+
+// Levels 设置所有的日志等级都走这个钩子
+func (hook *LogrusHook) Levels() []logrus.Level {
+	return logrus.AllLevels
+}
+
+// Fire 修改其中的数据，或者进行其他操作
+func (hook *LogrusHook) Fire(entry *logrus.Entry) error {
+	entry.Data["request_id"] = GetNewUid()
+	return nil
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 	"time"
@@ -26,13 +25,13 @@ func SendRedPacket(c *gin.Context) {
 	var sReq model.SendRpReq
 	err := c.BindJSON(&sReq)
 	if err != nil {
-		logrus.Error("[SendRedPacket] bind req json error")
+		utils.Error("[SendRedPacket] bind req json error")
 		utils.RetErrJson(c, consts.BindError)
 	}
 	// 2. 参数判断
 	ok := checkSendParams(sReq)
 	if !ok {
-		logrus.Errorf("[SendRedPacket] check params error, sReq: %v", utils.Json2String(sReq))
+		utils.Errorf("[SendRedPacket] check params error, sReq: %v", utils.Json2String(sReq))
 		utils.RetErrJson(c, consts.ParamError)
 		return
 	}
@@ -48,12 +47,12 @@ func SendRedPacket(c *gin.Context) {
 	// 4. 幂等校验
 	record, rErr := db.QuerySendRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
 	if rErr != nil && !errors.As(rErr, &existErr) {
-		logrus.Errorf("[SendRedPacket] query db error %v", rErr)
+		utils.Errorf("[SendRedPacket] query db error %v", rErr)
 		utils.RetErrJson(c, consts.ServiceBusy)
 		return
 	}
 	if record != nil {
-		logrus.Infof("[SendRedPacket] bizOutNo has one record already")
+		utils.Infof("[SendRedPacket] bizOutNo has one record already")
 		utils.RetJsonWithData(c, utils.Json2String(record))
 		return
 	}
@@ -76,7 +75,7 @@ func SendRedPacket(c *gin.Context) {
 	}
 	kErr := kv.LPushRp(c, newRecord.RpId, receiveAmountList)
 	if kErr != nil {
-		logrus.Errorf("[SendRedPacket] insert receive amount into redis error %v", kErr)
+		utils.Errorf("[SendRedPacket] insert receive amount into redis error %v", kErr)
 		utils.RetErrJson(c, consts.ServiceBusy)
 		return
 	}
@@ -91,32 +90,32 @@ func SendRedPacket(c *gin.Context) {
 			//  幂等返回
 			oldRecord, oErr := db.QuerySendRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
 			if oErr != nil && !errors.As(oErr, &existErr) {
-				logrus.Errorf("[SendRedPacket] old record query db error %v", oErr)
+				utils.Errorf("[SendRedPacket] old record query db error %v", oErr)
 				tx.Rollback()
 				utils.RetErrJson(c, consts.ServiceBusy)
 				return
 			}
 			if oldRecord != nil {
-				logrus.Infof("[SendRedPacket] bizOutNo has one record already")
+				utils.Infof("[SendRedPacket] bizOutNo has one record already")
 				tx.Commit()
 				utils.RetJsonWithData(c, utils.Json2String(record))
 				return
 			}
 		} else {
-			logrus.Warnf("[SendRedPacket] bizOutNo has one record already")
+			utils.Warnf("[SendRedPacket] bizOutNo has one record already")
 			_ = tx.Rollback()
 			utils.RetErrJson(c, consts.InsertError)
 			return
 		}
 	}
-	logrus.Infof("[SendRedPacket]: insert rp record success: %v", newRecord.Id)
+	utils.Infof("[SendRedPacket]: insert rp record success: %v", newRecord.Id)
 	// 8. 发送延迟消息，期间进行一次对账
 	// 发一个消息告诉某人，这个红包在xx时刻会过期，如果过期了，请你帮我把红包设置成过期状态，如果这个时候红包没有领完，请你把剩下的钱转给发红包的用户。 todo
 	//mErr := mq.SendRpDelay(c, newRecord, 0)
 	//if mErr != nil {
 	//	// 方法1： 跟下面对账类似，如果出错了，我们回滚数据库，并且告诉用户，这次发红包失败了-- 不太可取
 	//	// 方法2： 依赖于mq自己重发，告诉用户我们发红包是成功了
-	//	logrus.Errorf("[SendRedPacket]:  send message error %v", mErr)
+	//	utils.Errorf("[SendRedPacket]:  send message error %v", mErr)
 	//}
 	// 简单对账
 	// 1. 初始化一个list
@@ -126,7 +125,7 @@ func SendRedPacket(c *gin.Context) {
 	if rlErr != nil {
 		// 需要回滚数据库
 		tx.Rollback()
-		logrus.Warnf("[SendRedPacket] bizOutNo has one record already")
+		utils.Warnf("[SendRedPacket] bizOutNo has one record already")
 	} else {
 		if *rLen != int64(len(receiveAmountList)) {
 			// 1. 回滚数据库、删除发放记录,作业 todo
@@ -146,7 +145,7 @@ func SendRedPacket(c *gin.Context) {
 	//		total += val
 	//	}
 	//	if total == sReq.Amount {
-	//		logrus.Infof("[SendRedPacket] amountListInMap equals user amount")
+	//		utils.Infof("[SendRedPacket] amountListInMap equals user amount")
 	//	} else {
 	//		// 1. 回滚数据库、删除发放记录,作业 todo
 	//

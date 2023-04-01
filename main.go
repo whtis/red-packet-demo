@@ -6,13 +6,16 @@ import (
 	"ginDemo/dal/kv"
 	"ginDemo/handler"
 	"ginDemo/service"
+	"ginDemo/utils"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	db.InitDB()
 	kv.InitRedis(context.Background())
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(utils.GinLogMiddleware())
 	register(r)
 	_ = r.Run() // listen and serve on 0.0.0.0:8080
 }
