@@ -3,7 +3,7 @@ package db
 import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"time"
+	"gorm.io/gorm/logger"
 )
 
 var Rdb *gorm.DB
@@ -11,19 +11,10 @@ var Rdb *gorm.DB
 func InitDB() {
 	dsn := "root:jrttroot@tcp(127.0.0.1:3306)/tech?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
-	Rdb, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	Rdb, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		panic(err)
 	}
-
-	sqlDB, _ := Rdb.DB()
-
-	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
-	sqlDB.SetMaxIdleConns(10)
-
-	// SetMaxOpenConns 设置打开数据库连接的最大数量。
-	sqlDB.SetMaxOpenConns(100)
-
-	// SetConnMaxLifetime 设置了连接可复用的最大时间。
-	sqlDB.SetConnMaxLifetime(time.Hour)
 }
