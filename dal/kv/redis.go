@@ -3,8 +3,8 @@ package kv
 import (
 	"context"
 	"fmt"
+	"ginDemo/utils"
 	"github.com/redis/go-redis/v9"
-	"github.com/sirupsen/logrus"
 )
 
 var redisCli *redis.Client
@@ -20,6 +20,6 @@ func InitRedis(ctx context.Context) {
 	if err != nil {
 		panic(fmt.Sprintf("连接redis出错，错误信息：%v", err))
 	}
-	logrus.Info("成功连接redis")
+	utils.Info("成功连接redis")
 
 }

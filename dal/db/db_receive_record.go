@@ -3,10 +3,9 @@ package db
 import (
 	"errors"
 	"ginDemo/model"
+	"ginDemo/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"log"
 )
 
 var tableNameReceive = "rp_receive_record"
@@ -15,7 +14,7 @@ func QueryByUserId(userId string) (*model.RpReceiveRecord, error) {
 	var record model.RpReceiveRecord
 	err := Rdb.Table(tableNameReceive).Where("user_id = ?", userId).First(&record).Error
 	if err != nil {
-		log.Printf("can not find userId amount, userId: %v, err: %v", userId, err)
+		utils.Errorf("can not find userId amount, userId: %v, err: %v", userId, err)
 		return nil, err
 	}
 	return &record, nil
@@ -24,7 +23,7 @@ func QueryByUserId(userId string) (*model.RpReceiveRecord, error) {
 func InsertRecord(record *model.RpReceiveRecord) (int64, error) {
 	err := Rdb.Table(tableNameReceive).Create(&record).Error
 	if err != nil {
-		log.Printf("insert data err: %v\n", err)
+		utils.Errorf("insert data err: %v\n", err)
 		return 0, err
 	}
 	return record.Id, nil
@@ -39,7 +38,7 @@ func QueryReceiveRecordByBizOutNoAndUserId(c *gin.Context, bizOutNo, userId stri
 		if errors.As(err, &gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		logrus.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
+		utils.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
 		return nil, err
 	}
 	return &record, nil

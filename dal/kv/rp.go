@@ -3,7 +3,7 @@ package kv
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
+	"ginDemo/utils"
 )
 
 func getKey(oKey string) string {
@@ -15,9 +15,9 @@ func LPushRp(c context.Context, key string, val []string) error {
 	//返回值是当前列表元素的数量
 	num, err := redisCli.LPush(c, lKey, val).Result()
 	if err != nil {
-		logrus.Errorf("redis: LPushRp error %v", err)
+		utils.Errorf("redis: LPushRp error %v", err)
 	} else {
-		logrus.Infof("lpush success, size:%v", num)
+		utils.Infof("lpush success, size:%v", num)
 	}
 	return err
 }
@@ -27,7 +27,7 @@ func LLenRp(c context.Context, key string) (*int64, error) {
 
 	rLen, rErr := redisCli.LLen(c, lKey).Result()
 	if rErr != nil {
-		logrus.Errorf("redis: get key error %v", lKey)
+		utils.Errorf("redis: get key error %v", lKey)
 		return nil, rErr
 	}
 	return &rLen, nil
@@ -38,7 +38,7 @@ func LPop(c context.Context, key string) (int64, error) {
 	lKey := getKey(key)
 	val, err := redisCli.LPop(c, lKey).Int64()
 	if err != nil {
-		logrus.Errorf("redis: lPop error %v", lKey)
+		utils.Errorf("redis: lPop error %v", lKey)
 		return 0, err
 	}
 	return val, nil

@@ -8,7 +8,6 @@ import (
 	"ginDemo/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -17,21 +16,21 @@ func ReceiveRedPacket(c *gin.Context) {
 	var rReq model.ReceiveRpReq
 	err := c.BindJSON(&rReq)
 	if err != nil {
-		logrus.Error("[ReceiveRedPacket] bind req json error")
+		utils.Error("[ReceiveRedPacket] bind req json error")
 		utils.RetErrJson(c, consts.BindError)
 		return
 	}
 	// 2. 参数检查
 	ok := checkReceiveParams(rReq)
 	if !ok {
-		logrus.Errorf("[ReceiveRedPacket] check params error, rReq: %v", utils.Json2String(rReq))
+		utils.Errorf("[ReceiveRedPacket] check params error, rReq: %v", utils.Json2String(rReq))
 		utils.RetErrJson(c, consts.ParamError)
 		return
 	}
 	// 3. 幂等检查
 	receiveRecord, rErr := db.QueryReceiveRecordByBizOutNoAndUserId(c, rReq.BizOutNo, rReq.UserId)
 	if rErr != nil {
-		logrus.Errorf("[ReceiveRedPacket] query db error %v", err)
+		utils.Errorf("[ReceiveRedPacket] query db error %v", err)
 		utils.RetErrJson(c, consts.ServiceBusy)
 		return
 	}
@@ -49,13 +48,13 @@ func ReceiveRedPacket(c *gin.Context) {
 	// 4. 读取红包记录
 	// 校验发送红包记录的状态，只有状态为已发送时才能继续领取红包
 	if sendRecord.Status != consts.RpStatusSend {
-		logrus.Infof("[ReceiveRedPacket] rp record received or expired, status:%d", sendRecord.Status)
+		utils.Infof("[ReceiveRedPacket] rp record received or expired, status:%d", sendRecord.Status)
 		utils.RetErrJson(c, consts.ServiceBusy)
 		return
 	}
 	// 校验红包是否过期
 	if time.Now().After(sendRecord.ExpireTime) {
-		logrus.Errorf("[ReceiveRedPacket] rp record has been expired")
+		utils.Errorf("[ReceiveRedPacket] rp record has been expired")
 		utils.RetErrJson(c, consts.RpExpiredError)
 		return
 	}

@@ -29,7 +29,7 @@ func Logger() {
 	logFilePath := "./log"
 	//创建文件夹
 	if err := os.MkdirAll(logFilePath, os.ModePerm); err != nil {
-		fmt.Println(err.Error())
+		Error(err.Error())
 	}
 	//文件名称
 	logFileName := nowTime.Format("2006-01-02") + ".log"
@@ -37,16 +37,16 @@ func Logger() {
 	fileName := path.Join(logFilePath, logFileName)
 	//fmt.Println("文件名称："+fileName)
 	if _, err := os.Stat(fileName); err != nil {
-		fmt.Println("检测文件：" + err.Error())
+		Error("检测文件：" + err.Error())
 		_, err := os.Create(fileName)
 		if err != nil {
-			fmt.Println(err.Error())
+			Error(err.Error())
 		}
 	}
 	//打开文件
 	src, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, os.ModeAppend|os.ModePerm)
 	if err != nil {
-		fmt.Println("write file log error", err)
+		Error("write file log error", err)
 	}
 	//实例化
 	RpLog = *logrus.New()

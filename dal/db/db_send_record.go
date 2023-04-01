@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"ginDemo/model"
+	"ginDemo/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"strconv"
 	"time"
 )
@@ -17,7 +17,7 @@ func QuerySendRecordByBizOutNoAndUserId(ctx context.Context, bizOutNo, userId st
 	var record model.RpSendRecord
 	err := Rdb.Table(tableNameSend).WithContext(ctx).Where("user_id = ?", userId).Where("biz_out_no = ?", bizOutNo).Find(&record).Error
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
+		utils.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
 		return nil, err
 	}
 	if record.Id == 0 {
@@ -31,7 +31,7 @@ func InsertSendRecord(c *gin.Context, record *model.RpSendRecord) (int64, error)
 	err := Rdb.Table(tableNameSend).WithContext(c).Create(record).Error
 	// err有两种情况 1. 数据库有问题   2. 数据插入重复
 	if err != nil {
-		logrus.Errorf("dal.InsertSendRecord error %v", err)
+		utils.Errorf("dal.InsertSendRecord error %v", err)
 		return 0, err
 	}
 	return record.Id, err
@@ -41,7 +41,7 @@ func QuerySendRecordByRpId(c *gin.Context, rpId string) (*model.RpSendRecord, er
 	var record model.RpSendRecord
 	err := Rdb.Table(tableNameSend).WithContext(c).Where("rp_id = ?", rpId).First(&record).Error
 	if err != nil {
-		logrus.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
+		utils.Errorf("dal.QuerySendRecordByBizOutNoAndUserId query error %v", err)
 		return nil, err
 	}
 	return &record, nil
@@ -60,7 +60,7 @@ func QuerySendRecordByCond(c *gin.Context, req model.QuerySendRecordReq) ([]*mod
 
 	err := tx.Order("create_time desc").Limit(int(req.Size)).Find(&records).Error
 	if err != nil {
-		logrus.Errorf("dal.QuerySendRecordByCond query error %v", err)
+		utils.Errorf("dal.QuerySendRecordByCond query error %v", err)
 		return nil, err
 	}
 	return records, nil
@@ -76,7 +76,7 @@ func QuerySendRecordByCondPage(c *gin.Context, req model.QuerySendRecordReqByPag
 
 	err := tx.Order("create_time desc").Offset(int(req.Page)).Limit(int(req.Size)).Find(&records).Error
 	if err != nil {
-		logrus.Errorf("dal.QuerySendRecordByCondPage query error %v", err)
+		utils.Errorf("dal.QuerySendRecordByCondPage query error %v", err)
 		return nil, err
 	}
 	return records, nil
@@ -92,7 +92,7 @@ func ExportSendRecords(c *gin.Context, req model.ExportSendRecordReq) ([]*model.
 
 	err := tx.Order("create_time desc").Find(&records).Error
 	if err != nil {
-		logrus.Errorf("dal.QuerySendRecordByCondPage query error %v", err)
+		utils.Errorf("dal.QuerySendRecordByCondPage query error %v", err)
 		return nil, err
 	}
 	return records, nil
@@ -108,7 +108,7 @@ func CountSendRecordByCondPage(c *gin.Context, req model.QuerySendRecordReqByPag
 
 	err := tx.Order("create_time desc").Offset(int(req.Page)).Limit(int(req.Size)).Count(&count).Error
 	if err != nil {
-		logrus.Errorf("dal.QuerySendRecordByCondPage query error %v", err)
+		utils.Errorf("dal.QuerySendRecordByCondPage query error %v", err)
 		return 0, err
 	}
 	return count, nil

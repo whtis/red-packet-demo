@@ -7,7 +7,6 @@ import (
 	"ginDemo/model"
 	"ginDemo/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 	"time"
 )
@@ -17,14 +16,14 @@ func ExportSendRecords(c *gin.Context) {
 	var sReq model.ExportSendRecordReq
 	err := c.BindJSON(&sReq)
 	if err != nil {
-		logrus.Error("[QuerySendRecords] bind req json error")
+		utils.Error("[QuerySendRecords] bind req json error")
 		utils.RetErrJson(c, consts.BindError)
 		return
 	}
 	// 2. 参数检查
 	//ok := checkSendRecordParams(sReq)
 	//if !ok {
-	//	logrus.Errorf("[ReceiveRedPacket] check params error, rReq: %v", utils.Json2String(sReq))
+	//	utils.Errorf("[ReceiveRedPacket] check params error, rReq: %v", utils.Json2String(sReq))
 	//	utils.RetErrJson(c, consts.ParamError)
 	//	return
 	//}
