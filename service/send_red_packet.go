@@ -52,7 +52,7 @@ func SendRedPacket(c *gin.Context) {
 		return
 	}
 	if record != nil {
-		utils.Infof("[SendRedPacket] bizOutNo has one record already")
+		utils.Info("[SendRedPacket] bizOutNo has one record already")
 		utils.RetJsonWithData(c, utils.Json2String(record))
 		return
 	}

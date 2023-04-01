@@ -1,0 +1,12 @@
+{"level":"info","msg":"/Users/tech/go/src/ginDemo/dal/db/db_send_record.go:18\n[0.761ms] [rows:1] SELECT * FROM `rp_send_record` WHERE user_id = 'ap010' AND biz_out_no = 'biz_000004'","request_id":"ff3082ff-06bd-47eb-b5d2-de8b267306f9","time":"2023-04-02T00:19:29+08:00"}
+{"level":"info","msg":"[[SendRedPacket] bizOutNo has one record already]","request_id":"ff3082ff-06bd-47eb-b5d2-de8b267306f9","time":"2023-04-02T00:19:29+08:00"}
+{"client_ip":"::1","level":"info","method":"POST","msg":"","request_id":"ff3082ff-06bd-47eb-b5d2-de8b267306f9","status_code":200,"time":"2023-04-02T00:19:29+08:00","uri":"/red-packet/send"}
+{"level":"info","msg":"/Users/tech/go/src/ginDemo/dal/db/db_send_record.go:18\n[1.046ms] [rows:1] SELECT * FROM `rp_send_record` WHERE user_id = 'ap010' AND biz_out_no = 'biz_000004'","request_id":"0fb400e9-70ec-4e89-95ab-c46cf2582a80","time":"2023-04-02T00:19:30+08:00"}
+{"level":"info","msg":"[[SendRedPacket] bizOutNo has one record already]","request_id":"0fb400e9-70ec-4e89-95ab-c46cf2582a80","time":"2023-04-02T00:19:30+08:00"}
+{"client_ip":"::1","level":"info","method":"POST","msg":"","request_id":"0fb400e9-70ec-4e89-95ab-c46cf2582a80","status_code":200,"time":"2023-04-02T00:19:30+08:00","uri":"/red-packet/send"}
+{"level":"info","msg":"/Users/tech/go/src/ginDemo/dal/db/db_send_record.go:18\n[0.670ms] [rows:1] SELECT * FROM `rp_send_record` WHERE user_id = 'ap010' AND biz_out_no = 'biz_000004'","request_id":"d1708c6e-d25b-4a88-a865-b810acb0cf3f","time":"2023-04-02T00:19:30+08:00"}
+{"level":"info","msg":"[[SendRedPacket] bizOutNo has one record already]","request_id":"d1708c6e-d25b-4a88-a865-b810acb0cf3f","time":"2023-04-02T00:19:30+08:00"}
+{"client_ip":"::1","level":"info","method":"POST","msg":"","request_id":"d1708c6e-d25b-4a88-a865-b810acb0cf3f","status_code":200,"time":"2023-04-02T00:19:30+08:00","uri":"/red-packet/send"}
+{"level":"info","msg":"/Users/tech/go/src/ginDemo/dal/db/db_send_record.go:18\n[0.445ms] [rows:1] SELECT * FROM `rp_send_record` WHERE user_id = 'ap010' AND biz_out_no = 'biz_000004'","request_id":"ce7f11f3-f5cb-4ed1-a203-62ab91d96e79","time":"2023-04-02T00:19:31+08:00"}
+{"level":"info","msg":"[[SendRedPacket] bizOutNo has one record already]","request_id":"ce7f11f3-f5cb-4ed1-a203-62ab91d96e79","time":"2023-04-02T00:19:31+08:00"}
+{"client_ip":"::1","level":"info","method":"POST","msg":"","request_id":"ce7f11f3-f5cb-4ed1-a203-62ab91d96e79","status_code":200,"time":"2023-04-02T00:19:31+08:00","uri":"/red-packet/send"}

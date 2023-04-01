@@ -16,6 +16,7 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(utils.GinLogMiddleware())
+	//r.Use(utils.GinConsoleLogMiddleware())
 	register(r)
 	_ = r.Run() // listen and serve on 0.0.0.0:8080
 }

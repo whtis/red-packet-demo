@@ -5,12 +5,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"io"
 	"os"
 	"path"
 	"time"
 )
 
-var RpLog = *logrus.New()
+// 定义一个实例
+var RpLog logrus.Logger
 
 // 设置用户uid，hook中使用的上
 var uid string
@@ -24,14 +26,7 @@ func Logger() {
 	//当前时间
 	nowTime := time.Now()
 	//获取日志文件存储的目录，这里我采用的是自己封装的一个获取配置文件的方法,可以看我上一篇viper获取配置信息的文章
-	logFilePath := "./logs"
-	// 如果没有获取到配置文件的话那就是直接代码写死一个文件地址
-	//if len(logFilePath) <= 0 {
-	//	//获取当前目前的地址，也就是项目的根目录
-	//	if dir, err := os.Getwd(); err == nil {
-	//		logFilePath = dir + "/logs/"
-	//	}
-	//}
+	logFilePath := "./log"
 	//创建文件夹
 	if err := os.MkdirAll(logFilePath, os.ModePerm); err != nil {
 		fmt.Println(err.Error())
@@ -53,8 +48,17 @@ func Logger() {
 	if err != nil {
 		fmt.Println("write file log error", err)
 	}
+	//实例化
+	RpLog = *logrus.New()
+
+	writers := []io.Writer{
+		src,
+		os.Stdout}
+	//同时写文件和屏幕
+	fileAndStdoutWriter := io.MultiWriter(writers...)
 	//设置输出
-	RpLog.Out = src
+	RpLog.Out = fileAndStdoutWriter
+
 	//这里我觉得应该是交给需要封装的方法去确认使用什么等级的日志和什么格式
 	//设置日志级别
 	//logger.SetLevel(logrus.InfoLevel)
@@ -73,7 +77,6 @@ func GinLogMiddleware() gin.HandlerFunc {
 
 	RpLog.SetFormatter(&logrus.JSONFormatter{})
 	RpLog.SetLevel(logrus.InfoLevel)
-	RpLog.Out = os.Stdout
 
 	return func(c *gin.Context) {
 		c.Next()
@@ -91,22 +94,38 @@ func GinLogMiddleware() gin.HandlerFunc {
 	}
 }
 
+// 获取gin日志的中间件
+func GinConsoleLogMiddleware() gin.HandlerFunc {
+	loggerInfo := *logrus.New()
+	loggerInfo.SetFormatter(&logrus.JSONFormatter{})
+	loggerInfo.SetLevel(logrus.InfoLevel)
+
+	return func(c *gin.Context) {
+		c.Next()
+		method := c.Request.Method
+		reqUrl := c.Request.RequestURI
+		statusCode := c.Writer.Status()
+		clientIP := c.ClientIP()
+		loggerInfo.WithFields(logrus.Fields{
+			"method":      method,
+			"uri":         reqUrl,
+			"status_code": statusCode,
+			"client_ip":   clientIP,
+		}).Info()
+		setUid()
+	}
+}
+
 func Info(args ...interface{}) {
-	RpLog.WithFields(logrus.Fields{
-		"data": Json2String(fmt.Sprint(args...)),
-	}).Info()
+	RpLog.WithFields(logrus.Fields{}).Info(args)
 }
 
 func Infof(format string, args ...interface{}) {
-	RpLog.WithFields(logrus.Fields{
-		"data": Json2String(fmt.Sprintf(format, args)),
-	}).Info()
+	RpLog.WithFields(logrus.Fields{}).Infof(format, args)
 }
 
 func Warn(args ...interface{}) {
-	RpLog.WithFields(logrus.Fields{
-		"data": Json2String(fmt.Sprint(args...)),
-	}).Warn()
+	RpLog.WithFields(logrus.Fields{}).Warn(args)
 }
 
 func Warnf(format string, args ...interface{}) {
@@ -116,15 +135,11 @@ func Warnf(format string, args ...interface{}) {
 }
 
 func Error(args ...interface{}) {
-	RpLog.WithFields(logrus.Fields{
-		"data": Json2String(fmt.Sprint(args...)),
-	}).Error()
+	RpLog.WithFields(logrus.Fields{}).Error(args)
 }
 
 func Errorf(format string, args ...interface{}) {
-	RpLog.WithFields(logrus.Fields{
-		"data": Json2String(fmt.Sprintf(format, args)),
-	}).Error()
+	RpLog.WithFields(logrus.Fields{}).Errorf(format, args)
 }
 
 func setUid() {
