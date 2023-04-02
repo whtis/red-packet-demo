@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// todo 更新领取的钱，先放到redis
 func ReceiveRedPacket(c *gin.Context) {
 	// 1. 参数绑定
 	var rReq model.ReceiveRpReq

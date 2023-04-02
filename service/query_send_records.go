@@ -14,6 +14,10 @@ import (
 func QuerySendRecords(c *gin.Context) {
 	// 1. 参数绑定
 	var sReq model.QuerySendRecordReq
+	if v, b := c.Get("user_id"); b {
+		utils.Info("xxxxxx------------:%v", v)
+	}
+
 	err := c.BindJSON(&sReq)
 	if err != nil {
 		utils.Error("[QuerySendRecords] bind req json error")

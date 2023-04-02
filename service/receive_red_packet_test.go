@@ -22,9 +22,9 @@ func TestReceiveRedPacket(t *testing.T) {
 	db.InitDB()
 	kv.InitRedis(ctx)
 
-	rpId := "13e1a1d24842469d98da287224b9a613"
-	uniqueId := "aaaa"
-	for i := 0; i < 100; i++ {
+	rpId := "00cbaf2ad6d64a2c9cc68780f4a692cc"
+	uniqueId := "fff"
+	for i := 0; i < 2000; i++ {
 		userid := fmt.Sprintf("userid_random%s%d", uniqueId, i)
 		bizOutNo := fmt.Sprintf("biz_out_receive_00%s%d", uniqueId, i)
 		// go 协程
@@ -38,7 +38,7 @@ func TestReceiveRedPacket(t *testing.T) {
 }
 
 func receiveTest(rpId, userId, bizOutNo string) {
-
+	fmt.Println(fmt.Sprintf("start receive rp..."))
 	// 关键点1， 使用gin的Router
 	r := setupReceiveRouter()
 	// 关键点2 构造请求body

@@ -46,7 +46,7 @@ func SendRedPacket(c *gin.Context) {
 
 	// 4. 幂等校验
 	record, rErr := db.QuerySendRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
-	if rErr != nil && !errors.As(rErr, &existErr) {
+	if rErr != nil {
 		utils.Errorf("[SendRedPacket] query db error %v", rErr)
 		utils.RetErrJson(c, consts.ServiceBusy)
 		return
@@ -89,7 +89,7 @@ func SendRedPacket(c *gin.Context) {
 		if errors.As(dErr, &mysqlErr) && mysqlErr.Number == 1062 {
 			//  幂等返回
 			oldRecord, oErr := db.QuerySendRecordByBizOutNoAndUserId(c, sReq.BizOutNo, sReq.UserId)
-			if oErr != nil && !errors.As(oErr, &existErr) {
+			if oErr != nil {
 				utils.Errorf("[SendRedPacket] old record query db error %v", oErr)
 				tx.Rollback()
 				utils.RetErrJson(c, consts.ServiceBusy)
