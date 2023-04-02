@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// 定义一个实例
+// 定义一个实例 logurs
 var RpLog logrus.Logger
 
 // 设置用户uid，hook中使用的上
